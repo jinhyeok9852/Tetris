@@ -1654,6 +1654,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tetrisBlockPrefabs:
+  - {fileID: 4953429863392389777, guid: ad2221f42df7c5d4b8e8c295aece2147, type: 3}
+  - {fileID: 8590460396893060838, guid: 651759eb9de2af641aea407eaaefc109, type: 3}
+  - {fileID: -4517974473289399637, guid: b24cc0fd74f02c348b11bacfe3e740c5, type: 3}
+  - {fileID: -6328364077865884073, guid: 1ca189362cf5f06409c3695ab9e5e0c5, type: 3}
   - {fileID: -6328364077865884073, guid: 46df1c6c02139a54f910e963fe576b1c, type: 3}
 --- !u!4 &493107851
 Transform:
@@ -3411,6 +3415,7 @@ MonoBehaviour:
   controller: {fileID: 2049862837}
   dropInterval: 1
   generationTime: 0
+  test: []
 --- !u!1 &1042279817
 GameObject:
   m_ObjectHideFlags: 0

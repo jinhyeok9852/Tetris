@@ -31,13 +31,17 @@ public class TetrisBlockController : MonoBehaviour
 
         foreach (var previewEmpty in _tetrisBlock.previewEmpties)
         {
-            Debug.Log(previewEmpty.position);
+            Vector3 previewPosition = previewEmpty.position;
+            Debug.Log(previewPosition);
 
-            if (GameManager.instance.tetrisBlockCubes.ContainsKey(previewEmpty.position))
+            if (GameManager.instance.tetrisBlockCubes.ContainsKey(previewPosition))
             {
                 _tetrisBlock.previewEmptyContent.Rotate(-Vector3.forward * _rotateValue);
 
                 return false;
+            }
+            else
+            {
             }
         }
 

@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class TetrisBlockGenerator : MonoBehaviour
 {
+    public Color[] tetrisBlockColors; 
     public TetrisBlock [] tetrisBlockPrefabs;
 
     public TetrisBlock GenerateTetrisBlock()
     {
-        int _randomRange = Random.Range(0 , tetrisBlockPrefabs.Length);
+        int colorRandomRange = Random.Range(0 , tetrisBlockColors.Length);
+        int blockRandomRange = Random.Range(0 , tetrisBlockPrefabs.Length);
 
-        TetrisBlock _randomTetrisBlock = Instantiate(tetrisBlockPrefabs[_randomRange] , transform);
+        TetrisBlock _tetrisBlock = Instantiate(tetrisBlockPrefabs[blockRandomRange] , transform);
 
-        return _randomTetrisBlock;
+        _tetrisBlock.SetCubesColor(tetrisBlockColors[colorRandomRange]);
+
+        return _tetrisBlock;
     }
 }

@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
     private float _delayTime;
     private TetrisBlock _tetrisBlock;
     public Dictionary<Vector3 , GameObject> tetrisBlockCubes = new Dictionary<Vector3, GameObject>();
-    public List<Vector3> test;
 
     private void Awake()
     {
@@ -68,7 +67,6 @@ public class GameManager : MonoBehaviour
             if (!tetrisBlockCubes.ContainsKey(cube.position))
             {
                 tetrisBlockCubes.TryAdd(cube.position, cube.gameObject);
-                test.Add(cube.position);
             }
         }
     }

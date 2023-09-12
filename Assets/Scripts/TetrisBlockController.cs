@@ -25,36 +25,32 @@ public class TetrisBlockController : MonoBehaviour
         }
     }
 
-    private bool CheckRotateRange(float _rotateValue , TetrisBlock _tetrisBlock)
+    private bool CheckRotateRange(TetrisBlock _tetrisBlock)
     {
-        _tetrisBlock.previewEmptyContent.Rotate(Vector3.forward * _rotateValue);
+        _tetrisBlock.RotatePreviewEmpties();
 
         foreach (var previewEmpty in _tetrisBlock.previewEmpties)
         {
             Vector3 previewPosition = previewEmpty.position;
-            Debug.Log(previewPosition);
 
             if (GameManager.instance.tetrisBlockCubes.ContainsKey(previewPosition))
             {
-                _tetrisBlock.previewEmptyContent.Rotate(-Vector3.forward * _rotateValue);
+                _tetrisBlock.RevertPreviewEmpties();
 
                 return false;
-            }
-            else
-            {
             }
         }
 
         return true;
     }
 
-    public void RotateTetrisBlock(float _rotateValue, TetrisBlock _tetrisBlock)
+    public void RotateTetrisBlock(TetrisBlock _tetrisBlock)
     {
-        bool isRotate = CheckRotateRange(_rotateValue , _tetrisBlock);
+        bool isRotate = CheckRotateRange(_tetrisBlock);
 
         if(isRotate)
         {
-            _tetrisBlock.cubeContent.Rotate(Vector3.forward * _rotateValue);
+            _tetrisBlock.RotateCubes();
         }
     }
 
@@ -77,12 +73,12 @@ public class TetrisBlockController : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.Z))
         {
-            RotateTetrisBlock(90, _tetrisBlock);
+            RotateTetrisBlock(_tetrisBlock);
         }
 
         if(Input.GetKeyDown(KeyCode.X))
         {
-            RotateTetrisBlock(-90, _tetrisBlock);
+            RotateTetrisBlock(_tetrisBlock);
         }
     }
 }

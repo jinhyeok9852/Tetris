@@ -30,11 +30,19 @@ public class TetrisBlock : MonoBehaviour
 
     public void RevertPreviewEmpties()
     {
-        anglesIndex = anglesIndex > 0 ? anglesIndex-- : angles.Length - 1;
+        if (anglesIndex == 0)
+            anglesIndex = angles.Length - 1;
+        else
+            anglesIndex--;
 
         Vector3 angle = angles[anglesIndex];
 
         previewEmptyContent.eulerAngles = angle;
+
+        if(cubeContent.eulerAngles != previewEmptyContent.eulerAngles)
+        {
+            Debug.LogError("Check Angles , cubeContent and previewEmptyContent's eulerAngles is difference");
+        }
     }
 
     public void SetCubesColor(Color color)

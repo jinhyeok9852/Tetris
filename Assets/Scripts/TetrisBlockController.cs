@@ -2,83 +2,43 @@ using UnityEngine;
 
 public class TetrisBlockController : MonoBehaviour
 {
-    private bool CheckMoveRange(Vector3 _direction , TetrisBlock _tetrisBlock)
+    public void MoveTetrisBlock(Vector3 direction)
     {
-        foreach (var cube in _tetrisBlock.cubes)
-        {
-            if(GameManager.instance.tetrisBlockCubes.ContainsKey(cube.position + _direction))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public void MoveTetrisBlock(Vector3 _direction , TetrisBlock _tetrisBlock)
-    {
-        bool isMove = CheckMoveRange(_direction , _tetrisBlock);
+        bool isMove = GameManager.instance.IsMoveRange(direction);
 
         if (isMove)
         {
-            _tetrisBlock.transform.position += _direction;
+            GameManager.instance.tetrisBlock.transform.position += direction;
         }
     }
 
-    private bool CheckRotateRange(TetrisBlock _tetrisBlock)
+    public void RotateTetrisBlock()
     {
-        _tetrisBlock.RotatePreviewEmpties();
+        bool isRotate = GameManager.instance.IsRotateRange();
 
-        foreach (var previewEmpty in _tetrisBlock.previewEmpties)
+        if (isRotate)
         {
-            Vector3 previewPosition = previewEmpty.position;
-
-            if (GameManager.instance.tetrisBlockCubes.ContainsKey(previewPosition))
-            {
-                _tetrisBlock.RevertPreviewEmpties();
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public void RotateTetrisBlock(TetrisBlock _tetrisBlock)
-    {
-        bool isRotate = CheckRotateRange(_tetrisBlock);
-
-        if(isRotate)
-        {
-            _tetrisBlock.RotateCubes();
+            GameManager.instance.tetrisBlock.RotateCubes();
         }
     }
 
-    public void ControlWithInputkey(TetrisBlock _tetrisBlock)
+    public void ControlWithInputkey()
     {
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            MoveTetrisBlock(Vector3.down, _tetrisBlock);
+            MoveTetrisBlock(Vector3.down);
         }
-
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            MoveTetrisBlock(Vector3.right, _tetrisBlock);
+            MoveTetrisBlock(Vector3.right);
         }
-
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            MoveTetrisBlock(Vector3.left, _tetrisBlock);
+            MoveTetrisBlock(Vector3.left);
         }
-
         if(Input.GetKeyDown(KeyCode.Z))
         {
-            RotateTetrisBlock(_tetrisBlock);
-        }
-
-        if(Input.GetKeyDown(KeyCode.X))
-        {
-            RotateTetrisBlock(_tetrisBlock);
+            RotateTetrisBlock();
         }
     }
 }

@@ -3429,6 +3429,8 @@ MonoBehaviour:
   generationTime: 0
   delayTime: 0
   tetrisBlock: {fileID: 0}
+  y_axis_min: 3.4028235e+38
+  y_axis_max: -3.4028235e+38
 --- !u!1 &1042279817
 GameObject:
   m_ObjectHideFlags: 0
@@ -5799,6 +5801,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43417cea0aa2ee440bc17ec9dfd16871, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  getKeyTime: 0
+  getKeyDelay: 0.5
 --- !u!4 &2049862838
 Transform:
   m_ObjectHideFlags: 0

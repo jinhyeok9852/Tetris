@@ -20,7 +20,9 @@ public class GameManager : MonoBehaviour
 
     public float delayTime;
     public TetrisBlock tetrisBlock;
-    
+
+    [SerializeField] private float y_axis_min = float.MaxValue;
+    [SerializeField] private float y_axis_max = float.MinValue;
     private Dictionary<string , Transform> tetrisBlockCubesTransform = new Dictionary<string, Transform>();
     private Dictionary<string , Transform> tetrisPlateCubesTransform = new Dictionary<string , Transform>();
 
@@ -60,7 +62,6 @@ public class GameManager : MonoBehaviour
 
         return true;
     }
-
     public bool IsRotateRange()
     {
         tetrisBlock.RotatePreviewEmpties();
@@ -110,7 +111,7 @@ public class GameManager : MonoBehaviour
             else
             {
                 SaveTetirsBlockCubesPosition();
-                DeleteTetrisBlockCubesWithHorizontalLine();
+                DeleteLines();
 
                 tetrisBlock = generator.GenerateTetrisBlock();
             }
@@ -119,72 +120,79 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void DeleteTetrisBlockCubesWithHorizontalLine()
+    private void DeleteLines()
     {
-        int deleteLineCount = 0;
-        Dictionary<string, GameObject> checkedTetrisBlockCubes = new Dictionary<string, GameObject>();
+        y_axis_min = float.MaxValue;
 
         foreach (var cube in tetrisBlock.cubes)
         {
-            Vector2 cubePosition = cube.position;
-            Dictionary<string, GameObject> tetrisBlockCubes = new Dictionary<string, GameObject>();
+            float y = cube.position.y;
 
-            // 같은 세로축일 때 왼쪽 블록이 먼저 체크된 경우 해당 가로줄은 체크할 필요가 없음.
-            if (checkedTetrisBlockCubes.ContainsKey(cubePosition.ToString()))
-                continue;
+            if (y >= y_axis_max)
+                y_axis_max = y;
 
-            bool isHorizontalLine = true;
-            float x = cubePosition.x;
-
-            // x 축 범위 0.5 ~ 9.5
-            for (float i = left.position.x + 1; i < x; i++)
-            {
-                cubePosition.x = i;
-
-                if (!tetrisBlockCubesTransform.ContainsKey(cubePosition.ToString()))
-                {
-                    isHorizontalLine = false;
-                    tetrisBlockCubes.Clear();
-
-                    break;
-                }
-                else
-                {
-                    tetrisBlockCubes.TryAdd(cubePosition.ToString() , tetrisBlockCubesTransform[cubePosition.ToString()].gameObject);
-                }
-            }
-
-            for (float i = x; i < right.position.x; i++)
-            {
-                cubePosition.x = i;
-
-                if (!tetrisBlockCubesTransform.ContainsKey(cubePosition.ToString()))
-                {
-                    isHorizontalLine = false;
-
-                    break;
-                }
-                else
-                {
-                    tetrisBlockCubes.TryAdd(cubePosition.ToString(), tetrisBlockCubesTransform[cubePosition.ToString()].gameObject);
-                }
-            }
-
-            if(isHorizontalLine)
-            {
-                foreach (var tetrisBlockCube in tetrisBlockCubes)
-                {
-                    checkedTetrisBlockCubes.TryAdd(tetrisBlockCube.Key , tetrisBlockCube.Value);
-                }
-
-                deleteLineCount++;
-            }
+            if (y < y_axis_min)
+                y_axis_min = y;
         }
 
-        foreach (var checkedTetrisBlockCube in checkedTetrisBlockCubes)
+        bool isDeleted = false;
+
+        for (float y = y_axis_min; y <= y_axis_max; y++)
         {
-            Destroy(checkedTetrisBlockCube.Value);
-            tetrisBlockCubesTransform.Remove(checkedTetrisBlockCube.Key);
+            bool isDeleteLine = true;
+            Dictionary<string, GameObject> deleteCubes = new Dictionary<string, GameObject>();
+
+            for (float x = left.position.x + 1; x < right.position.x; x++)
+            {
+                Vector2 cubePosition = new Vector2(x, y);
+
+                if (!tetrisBlockCubesTransform.ContainsKey(cubePosition.ToString()))
+                {
+                    isDeleteLine = false;
+
+                    break;
+                }
+                else
+                {
+                    deleteCubes.TryAdd(cubePosition.ToString(), tetrisBlockCubesTransform[cubePosition.ToString()].gameObject);
+                }
+            }
+
+            if (isDeleteLine)
+            {
+                foreach (var cube in deleteCubes)
+                {
+                    tetrisBlockCubesTransform.Remove(cube.Key);
+                    Destroy(cube.Value);
+                }
+            }
+
+            isDeleted |= isDeleteLine; 
+        }
+
+        if (isDeleted)
+            DropCubes();
+    }
+
+    private void DropCubes()
+    {
+        for (float y = y_axis_min + 1 ; y <= y_axis_max; y++)
+        {
+            for (float x = left.position.x + 1; x < right.position.x; x++)
+            {
+                Vector2 cubePosition = new Vector2(x, y);
+
+                if (tetrisBlockCubesTransform.ContainsKey(cubePosition.ToString()))
+                {
+                    Transform cube = tetrisBlockCubesTransform[cubePosition.ToString()];
+
+                    cube.position += Vector3.down;
+                    tetrisBlockCubesTransform.Remove(cubePosition.ToString());
+
+                    cubePosition = cube.position;
+                    tetrisBlockCubesTransform.TryAdd(cubePosition.ToString(), cube);
+                }
+            }
         }
     }
 }

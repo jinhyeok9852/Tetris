@@ -165,18 +165,20 @@ public class GameManager : MonoBehaviour
                     tetrisBlockCubesTransform.Remove(cube.Key);
                     Destroy(cube.Value);
                 }
+
+                DropCubes();
             }
 
             isDeleted |= isDeleteLine; 
         }
 
-        if (isDeleted)
-            DropCubes();
+        //if (isDeleted)
+        //    DropCubes();
     }
 
     private void DropCubes()
     {
-        for (float y = y_axis_min + 1 ; y <= y_axis_max; y++)
+        for (float y = y_axis_min + 1; y <= y_axis_max; y++)
         {
             for (float x = left.position.x + 1; x < right.position.x; x++)
             {
@@ -187,6 +189,7 @@ public class GameManager : MonoBehaviour
                     Transform cube = tetrisBlockCubesTransform[cubePosition.ToString()];
 
                     cube.position += Vector3.down;
+
                     tetrisBlockCubesTransform.Remove(cubePosition.ToString());
 
                     cubePosition = cube.position;

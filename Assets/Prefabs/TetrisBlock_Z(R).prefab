@@ -367,8 +367,8 @@ MonoBehaviour:
   - {fileID: 8506685742440055356}
   anglesIndex: 0
   angles:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 90}
+  - {x: 0, y: 180, z: 0}
+  - {x: 0, y: 180, z: 90}
 --- !u!1 &6626886105289897121
 GameObject:
   m_ObjectHideFlags: 0

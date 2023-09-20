@@ -16,13 +16,17 @@ public class GameManager : MonoBehaviour
 
     [Header("Setting Data")]
     public float dropInterval;
-    public float generationTime;
+    public float dropInterval_MinValue;
+    public float dropInterval_AdjustedValue;
 
+    [Header("Runtime Data")]
+    public float gameScore;
     public float delayTime;
+    public float initDropInterval;
+    public float y_Axis_MinValue = float.MaxValue;
+    public float y_Axis_MaxValue = float.MinValue;
     public TetrisBlock tetrisBlock;
 
-    [SerializeField] private float y_axis_min = float.MaxValue;
-    [SerializeField] private float y_axis_max = float.MinValue;
     private Dictionary<string , Transform> tetrisBlockCubesTransform = new Dictionary<string, Transform>();
     private Dictionary<string , Transform> tetrisPlateCubesTransform = new Dictionary<string , Transform>();
 
@@ -33,6 +37,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        initDropInterval = dropInterval;
+
         SaveTetirsPlateCubesPosition(left);
         SaveTetirsPlateCubesPosition(right);
         SaveTetirsPlateCubesPosition(bottom);
@@ -64,7 +70,7 @@ public class GameManager : MonoBehaviour
     }
     public bool IsRotateRange()
     {
-        tetrisBlock.RotatePreviewEmpties();
+        tetrisBlock.RotatePreviewEmptyContentAngle();
 
         foreach (var previewEmpty in tetrisBlock.previewEmpties)
         {
@@ -72,7 +78,7 @@ public class GameManager : MonoBehaviour
 
             if (tetrisBlockCubesTransform.ContainsKey(previewPosition.ToString()) || tetrisPlateCubesTransform.ContainsKey(previewPosition.ToString()))
             {
-                tetrisBlock.RevertPreviewEmpties();
+                tetrisBlock.RevertPreviewEmptyContentAngle();
 
                 return false;
             }
@@ -110,10 +116,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                SaveTetirsBlockCubesPosition();
-                DeleteLines();
-
-                tetrisBlock = generator.GenerateTetrisBlock();
+                CheckGameOver();
             }
 
             delayTime = 0.0f;
@@ -122,22 +125,20 @@ public class GameManager : MonoBehaviour
 
     private void DeleteLines()
     {
-        y_axis_min = float.MaxValue;
+        y_Axis_MinValue = float.MaxValue;
 
         foreach (var cube in tetrisBlock.cubes)
         {
             float y = cube.position.y;
 
-            if (y >= y_axis_max)
-                y_axis_max = y;
+            if (y >= y_Axis_MaxValue)
+                y_Axis_MaxValue = y;
 
-            if (y < y_axis_min)
-                y_axis_min = y;
+            if (y < y_Axis_MinValue)
+                y_Axis_MinValue = y;
         }
 
-        bool isDeleted = false;
-
-        for (float y = y_axis_min; y <= y_axis_max; y++)
+        for (float y = y_Axis_MinValue; y <= y_Axis_MaxValue; y++)
         {
             bool isDeleteLine = true;
             Dictionary<string, GameObject> deleteCubes = new Dictionary<string, GameObject>();
@@ -167,18 +168,17 @@ public class GameManager : MonoBehaviour
                 }
 
                 DropCubes();
+
+                y--;
+                y_Axis_MaxValue--;
+                gameScore++;
             }
-
-            isDeleted |= isDeleteLine; 
         }
-
-        //if (isDeleted)
-        //    DropCubes();
     }
 
     private void DropCubes()
     {
-        for (float y = y_axis_min + 1; y <= y_axis_max; y++)
+        for (float y = y_Axis_MinValue + 1; y <= y_Axis_MaxValue; y++)
         {
             for (float x = left.position.x + 1; x < right.position.x; x++)
             {
@@ -196,6 +196,34 @@ public class GameManager : MonoBehaviour
                     tetrisBlockCubesTransform.TryAdd(cubePosition.ToString(), cube);
                 }
             }
+        }
+    }
+
+    private void ChangeGameDifficulty()
+    {
+        dropInterval = initDropInterval - ( dropInterval_AdjustedValue * gameScore );
+
+        if(dropInterval < dropInterval_MinValue)
+        {
+            dropInterval = dropInterval_MinValue;
+        }
+    }
+
+    private void CheckGameOver()
+    {
+        bool isGameOver = y_Axis_MaxValue == generator.transform.position.y;
+
+        if (isGameOver)
+        {
+            Debug.Log("GameOver");
+        }
+        else
+        {
+            SaveTetirsBlockCubesPosition();
+            DeleteLines();
+            ChangeGameDifficulty();
+
+            tetrisBlock = generator.GenerateTetrisBlock();
         }
     }
 }

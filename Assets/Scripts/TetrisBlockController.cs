@@ -20,7 +20,7 @@ public class TetrisBlockController : MonoBehaviour
 
         if (isRotate)
         {
-            GameManager.instance.tetrisBlock.RotateCubes();
+            GameManager.instance.tetrisBlock.RotateCubeContentAngle();
         }
     }
 

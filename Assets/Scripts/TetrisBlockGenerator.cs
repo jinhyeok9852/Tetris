@@ -5,15 +5,35 @@ public class TetrisBlockGenerator : MonoBehaviour
     public Color[] tetrisBlockColors; 
     public TetrisBlock [] tetrisBlockPrefabs;
 
+    public Transform generationLocation;
+
+    public Transform[] previewLocations;
+
+    private void Start()
+    {
+        Initialize();
+    }
+
+    public void Initialize()
+    {
+        foreach (var location in previewLocations)
+        {
+            TetrisBlock tetrisBlock = GenerateTetrisBlock();
+
+            tetrisBlock.transform.SetParent(location.transform, false);
+        }
+    }
+
     public TetrisBlock GenerateTetrisBlock()
     {
         int colorRandomRange = Random.Range(0 , tetrisBlockColors.Length);
         int blockRandomRange = Random.Range(0 , tetrisBlockPrefabs.Length);
 
-        TetrisBlock _tetrisBlock = Instantiate(tetrisBlockPrefabs[blockRandomRange] , transform);
+        TetrisBlock tetrisBlock = Instantiate(tetrisBlockPrefabs[blockRandomRange] , transform);
 
-        _tetrisBlock.SetCubesColor(tetrisBlockColors[colorRandomRange]);
+        tetrisBlock.SetRandomAngle();
+        tetrisBlock.SetCubesColor(tetrisBlockColors[colorRandomRange]);
 
-        return _tetrisBlock;
+        return tetrisBlock;
     }
 }

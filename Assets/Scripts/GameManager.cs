@@ -1,14 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
     [Header("Tetris Plate")]
-    public Transform left;
-    public Transform right;
-    public Transform bottom;
+    public TetrisPlate tetrisPlate;
 
     [Header("Function")]
     public TetrisBlockGenerator generator;
@@ -20,15 +19,14 @@ public class GameManager : MonoBehaviour
     public float dropInterval_AdjustedValue;
 
     [Header("Runtime Data")]
-    public float gameScore;
     public float delayTime;
+    public float totalScore;
     public float initDropInterval;
     public float y_Axis_MinValue = float.MaxValue;
     public float y_Axis_MaxValue = float.MinValue;
-    public TetrisBlock tetrisBlock;
 
+    private TetrisBlock mainTetrisBlock;
     private Dictionary<string , Transform> tetrisBlockCubesTransform = new Dictionary<string, Transform>();
-    private Dictionary<string , Transform> tetrisPlateCubesTransform = new Dictionary<string , Transform>();
 
     private void Awake()
     {
@@ -39,11 +37,7 @@ public class GameManager : MonoBehaviour
     {
         initDropInterval = dropInterval;
 
-        SaveTetirsPlateCubesPosition(left);
-        SaveTetirsPlateCubesPosition(right);
-        SaveTetirsPlateCubesPosition(bottom);
-
-        tetrisBlock = generator.GenerateTetrisBlock();
+        mainTetrisBlock = generator.GetMainTetrisBlock();
     }
 
     private void Update()
@@ -51,58 +45,23 @@ public class GameManager : MonoBehaviour
         delayTime += Time.deltaTime;
 
         DropTetrisBlockWithInterval();
-        controller.ControlWithInputkey();
+        controller.ControlWithInputkey(mainTetrisBlock);
     }
 
-    public bool IsMoveRange(Vector3 direction)
+    public bool IsExistCubeOnPosition(Vector2 position)
     {
-        foreach (var previewEmpty in tetrisBlock.previewEmpties)
-        {
-            Vector2 previewPosition = previewEmpty.position + direction;
+        bool isExist = tetrisBlockCubesTransform.ContainsKey(position.ToString()) || tetrisPlate.IsExistPlateCubeOnPosition(position);
 
-            if (tetrisBlockCubesTransform.ContainsKey(previewPosition.ToString()) || tetrisPlateCubesTransform.ContainsKey(previewPosition.ToString()))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-    public bool IsRotateRange()
-    {
-        tetrisBlock.RotatePreviewEmptyContentAngle();
-
-        foreach (var previewEmpty in tetrisBlock.previewEmpties)
-        {
-            Vector2 previewPosition = previewEmpty.position;
-
-            if (tetrisBlockCubesTransform.ContainsKey(previewPosition.ToString()) || tetrisPlateCubesTransform.ContainsKey(previewPosition.ToString()))
-            {
-                tetrisBlock.RevertPreviewEmptyContentAngle();
-
-                return false;
-            }
-        }
-
-        return true;
+        return isExist;
     }
 
     private void SaveTetirsBlockCubesPosition()
     {
-        foreach (var cube in tetrisBlock.cubes)
+        foreach (var cube in mainTetrisBlock.cubes)
         {
             Vector2 cubePosition = cube.position;
 
             tetrisBlockCubesTransform.TryAdd(cubePosition.ToString(), cube);
-        }
-    }
-    private void SaveTetirsPlateCubesPosition(Transform tetrisPlate)
-    {
-        for (int i = 0; i < tetrisPlate.childCount; i++)
-        {
-            Vector2 cubePosition = tetrisPlate.GetChild(i).position;
-
-            tetrisPlateCubesTransform.TryAdd(cubePosition.ToString(), tetrisPlate.GetChild(i));
         }
     }
 
@@ -110,9 +69,11 @@ public class GameManager : MonoBehaviour
     {
         if(delayTime >= dropInterval)
         {
-            if(IsMoveRange(Vector3.down))
+            bool isDropRange = controller.IsMoveRange(Vector3.down, mainTetrisBlock);
+
+            if (isDropRange == true)
             {
-                controller.MoveTetrisBlock(Vector3.down);
+                controller.MoveTetrisBlock(Vector3.down , mainTetrisBlock);
             }
             else
             {
@@ -127,7 +88,7 @@ public class GameManager : MonoBehaviour
     {
         y_Axis_MinValue = float.MaxValue;
 
-        foreach (var cube in tetrisBlock.cubes)
+        foreach (var cube in mainTetrisBlock.cubes)
         {
             float y = cube.position.y;
 
@@ -143,7 +104,7 @@ public class GameManager : MonoBehaviour
             bool isDeleteLine = true;
             Dictionary<string, GameObject> deleteCubes = new Dictionary<string, GameObject>();
 
-            for (float x = left.position.x + 1; x < right.position.x; x++)
+            for (float x = tetrisPlate.GetX_Axis_MinValue() + 1; x < tetrisPlate.GetX_Axis_MaxValue(); x++)
             {
                 Vector2 cubePosition = new Vector2(x, y);
 
@@ -171,7 +132,7 @@ public class GameManager : MonoBehaviour
 
                 y--;
                 y_Axis_MaxValue--;
-                gameScore++;
+                totalScore++;
             }
         }
     }
@@ -180,7 +141,7 @@ public class GameManager : MonoBehaviour
     {
         for (float y = y_Axis_MinValue + 1; y <= y_Axis_MaxValue; y++)
         {
-            for (float x = left.position.x + 1; x < right.position.x; x++)
+            for (float x = tetrisPlate.GetX_Axis_MinValue() + 1; x < tetrisPlate.GetX_Axis_MaxValue(); x++)
             {
                 Vector2 cubePosition = new Vector2(x, y);
 
@@ -201,12 +162,24 @@ public class GameManager : MonoBehaviour
 
     private void ChangeGameDifficulty()
     {
-        dropInterval = initDropInterval - ( dropInterval_AdjustedValue * gameScore );
+        dropInterval = initDropInterval - ( dropInterval_AdjustedValue * totalScore);
 
         if(dropInterval < dropInterval_MinValue)
         {
             dropInterval = dropInterval_MinValue;
         }
+    }
+
+    private void PrepareNextTetrisBlock()
+    {
+        SaveTetirsBlockCubesPosition();
+
+        DeleteLines();
+        
+        ChangeGameDifficulty();
+
+        Action changeMainTetrisBlockAction = () => mainTetrisBlock = generator.GetMainTetrisBlock();
+        tetrisPlate.ChangeBackGroundHeight(y_Axis_MaxValue , changeMainTetrisBlockAction);
     }
 
     private void CheckGameOver()
@@ -219,11 +192,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            SaveTetirsBlockCubesPosition();
-            DeleteLines();
-            ChangeGameDifficulty();
-
-            tetrisBlock = generator.GenerateTetrisBlock();
+            PrepareNextTetrisBlock();
         }
     }
 }

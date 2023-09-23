@@ -5,35 +5,64 @@ public class TetrisBlockGenerator : MonoBehaviour
     public Color[] tetrisBlockColors; 
     public TetrisBlock [] tetrisBlockPrefabs;
 
-    public Transform generationLocation;
+    public Transform generationPosition;
+    public Transform [] previewPositions;
+    public TetrisBlock[] previewTetrisBlocks;
 
-    public Transform[] previewLocations;
+    private TetrisBlock mainTetirsBlock;
 
     private void Start()
     {
-        Initialize();
+        GeneratePreviewTetrisBlocks();
     }
 
-    public void Initialize()
+    private void GeneratePreviewTetrisBlocks()
     {
-        foreach (var location in previewLocations)
-        {
-            TetrisBlock tetrisBlock = GenerateTetrisBlock();
+        previewTetrisBlocks = new TetrisBlock[previewPositions.Length];
 
-            tetrisBlock.transform.SetParent(location.transform, false);
+        for (int i = 0; i < previewPositions.Length; i++)
+        {
+            TetrisBlock previewTetrisBlock = GenerateRandomTetrisBlock();
+
+            previewTetrisBlocks[i] = previewTetrisBlock;
+            previewTetrisBlock.transform.SetParent(previewPositions[i] , false);
         }
     }
 
-    public TetrisBlock GenerateTetrisBlock()
+    private TetrisBlock GenerateRandomTetrisBlock()
     {
-        int colorRandomRange = Random.Range(0 , tetrisBlockColors.Length);
-        int blockRandomRange = Random.Range(0 , tetrisBlockPrefabs.Length);
+        int colorRandomRange = Random.Range(0, tetrisBlockColors.Length);
+        int blockRandomRange = Random.Range(0, tetrisBlockPrefabs.Length);
 
-        TetrisBlock tetrisBlock = Instantiate(tetrisBlockPrefabs[blockRandomRange] , transform);
+        TetrisBlock tetrisBlock = Instantiate(tetrisBlockPrefabs[blockRandomRange]);
 
         tetrisBlock.SetRandomAngle();
         tetrisBlock.SetCubesColor(tetrisBlockColors[colorRandomRange]);
 
         return tetrisBlock;
+    }
+
+    private void RenewalPreviewTetrisBlocks()
+    {
+        mainTetirsBlock = previewTetrisBlocks[0];
+        mainTetirsBlock.transform.SetParent(generationPosition, false);
+
+        for (int i = 0; i < previewTetrisBlocks.Length - 1; i++)
+        {
+            previewTetrisBlocks[i] = previewTetrisBlocks[i + 1];
+            previewTetrisBlocks[i].transform.SetParent(previewPositions[i], false);
+        }
+
+        int lastPreviewIndex = previewTetrisBlocks.Length - 1;
+
+        previewTetrisBlocks[lastPreviewIndex] = GenerateRandomTetrisBlock();
+        previewTetrisBlocks[lastPreviewIndex].transform.SetParent(previewPositions[lastPreviewIndex] , false);
+    }
+
+    public TetrisBlock GetMainTetrisBlock()
+    {
+        RenewalPreviewTetrisBlocks();
+
+        return mainTetirsBlock;
     }
 }

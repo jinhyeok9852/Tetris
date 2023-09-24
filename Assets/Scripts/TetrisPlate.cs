@@ -10,12 +10,11 @@ public class TetrisPlate : MonoBehaviour
     public Transform bottom;
 
     [Header("Gradient Value")]
-    public float lerpSpeed;
+    public float heightChangeSpeed;
     public Material backGroundMaterial;
     public Color[] backGroundColors;
 
-    int colorIndex = 0;
-    float colorlerpSpeed = 1;
+    float colorChangeSpeed;
     private Coroutine changeGradientHeightCoroutine;
     private Dictionary<string, Transform> tetrisPlateCubesTransform = new Dictionary<string, Transform>();
 
@@ -24,6 +23,8 @@ public class TetrisPlate : MonoBehaviour
         SaveTetirsPlateCubesPosition(left);
         SaveTetirsPlateCubesPosition(right);
         SaveTetirsPlateCubesPosition(bottom);
+
+        backGroundMaterial.SetFloat("_TopLine", 0);
 
         StartCoroutine(ChangeBackGroundColorCoroutine());
     }
@@ -47,51 +48,52 @@ public class TetrisPlate : MonoBehaviour
 
     private IEnumerator ChangeBackGroundColorCoroutine()
     {
-        float time = 0.0f;
         int colorIndex = 0;
 
         while(true)
         {
-            time += Time.deltaTime * colorlerpSpeed;
-            Color from = backGroundMaterial.GetColor("_GradientBottomColor");
-            Color to = backGroundColors[colorIndex];
+            float time = 0.0f;
 
-            Color lerpValue = Color.Lerp(from, to, time);
-
-            backGroundMaterial.SetColor("_GradientBottomColor" , lerpValue);
-
-            if(backGroundMaterial.GetColor("_GradientBottomColor") == backGroundColors[colorIndex])
+            while (time < 1.0f)
             {
-                colorIndex++;
-                colorIndex %= backGroundColors.Length;
+                time += Time.deltaTime * colorChangeSpeed;
+                Color from = backGroundMaterial.GetColor("_GradientBottomColor");
+                Color to = backGroundColors[colorIndex];
+
+                Color lerpValue = Color.Lerp(from, to, time);
+
+                backGroundMaterial.SetColor("_GradientBottomColor", lerpValue);
+
+                yield return null;
             }
 
-            yield return null;
+            colorIndex++;
+            colorIndex %= backGroundColors.Length;
         }
     }
 
-    public void ChangeBackGroundHeight(float height , Action changeMainTetrisBlockAction)
+    public void ChangeBackGroundHeight(float targetHeight , Action changeMainTetrisBlockAction)
     {
         if(changeGradientHeightCoroutine != null)
         {
             StopCoroutine(changeGradientHeightCoroutine);
         }
 
-        colorlerpSpeed = 0.1f * height;
-        changeGradientHeightCoroutine = StartCoroutine(ChangeBackGroundHeightCoroutine(height , changeMainTetrisBlockAction));
+        colorChangeSpeed = 1 + targetHeight;
+        changeGradientHeightCoroutine = StartCoroutine(ChangeBackGroundHeightCoroutine(targetHeight, changeMainTetrisBlockAction));
     }
 
-    private IEnumerator ChangeBackGroundHeightCoroutine(float to , Action changeMainTetrisBlockAction)
+    private IEnumerator ChangeBackGroundHeightCoroutine(float targetHeight, Action changeMainTetrisBlockAction)
     {
         float time = 0.0f;
-        float from = backGroundMaterial.GetFloat("_TopLine"); 
+        float currentHeight = backGroundMaterial.GetFloat("_TopLine"); 
 
         while (time < 1.0f)
         {
-            time += Time.deltaTime * lerpSpeed;
-            float lerpValue = Mathf.Lerp(from, to, time);
+            time += Time.deltaTime * heightChangeSpeed;
+            float lerpValue = Mathf.Lerp(currentHeight, targetHeight, time);
 
-            backGroundMaterial.SetFloat("_TopLine", lerpValue);
+            backGroundMaterial.SetFloat("_TopLine", lerpValue + 2);
 
             if(time > 0.9f && changeMainTetrisBlockAction != null)
             {

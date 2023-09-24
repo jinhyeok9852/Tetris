@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
     public TetrisBlockGenerator generator;
     public TetrisBlockController controller;
 
+    [Header("Sound")]
+    public AudioSource bgm;
+
     [Header("Setting Data")]
     public float dropInterval;
     public float dropInterval_MinValue;
@@ -167,6 +170,10 @@ public class GameManager : MonoBehaviour
         if(dropInterval < dropInterval_MinValue)
         {
             dropInterval = dropInterval_MinValue;
+        }
+        else
+        {
+            bgm.pitch = 1 + (1 - dropInterval);
         }
     }
 

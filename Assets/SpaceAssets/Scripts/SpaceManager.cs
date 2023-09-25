@@ -10,6 +10,7 @@ public class SpaceManager : MonoBehaviour {
     ScrollDirection direction;
 
     public static SpaceManager instance = null;
+    public Transform spaceMovementTarget;
 
     void Start () {
         direction = scrollDirection;

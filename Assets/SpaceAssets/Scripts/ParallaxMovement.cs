@@ -17,7 +17,7 @@ public class ParallaxMovement : MonoBehaviour {
     //Define if the object is destroyed or regenerate when the object is out of the screen
     public BehaviourOnExit behaviourOnExit = BehaviourOnExit.Regenerate;
 
-    Transform cameraTransform;
+    Transform target;
     //Determine the value offScreen that the object has to be to consider out of screen
     //It also is used to regenerate it
     //if the value is 1f is the screen's width or heigth depending on the direction   
@@ -26,25 +26,27 @@ public class ParallaxMovement : MonoBehaviour {
     void Start () {
         if(SpaceManager.instance != null)
             direction = SpaceManager.instance.scrollDirection;
-        cameraTransform = Camera.main.transform;
+        //target = Camera.main.transform;
+        target = SpaceManager.instance.spaceMovementTarget;
+
         if (minSpeed > maxSpeed) Debug.LogError("The variable minSpeed cannot be greater than maxSpeed");
         //Set the speed vector based on the scroll direction
         switch (direction)
         {
             case ScrollDirection.LeftToRight:
-                lastScrollValue = cameraTransform.position.x;
+                lastScrollValue = target.position.x;
                 speed = new Vector3(Random.Range(minSpeed, maxSpeed), 0f, 0f);
                 break;
             case ScrollDirection.RightToLeft:
-                lastScrollValue = cameraTransform.position.x;
+                lastScrollValue = target.position.x;
                 speed = new Vector3(-Random.Range(minSpeed, maxSpeed), 0f, 0f);
                 break;
             case ScrollDirection.DownToUp:
-                lastScrollValue = cameraTransform.position.y;
+                lastScrollValue = target.position.y;
                 speed = new Vector3(0f, -Random.Range(minSpeed, maxSpeed), 0f);
                 break;
             case ScrollDirection.UpToDown:
-                lastScrollValue = cameraTransform.position.y;
+                lastScrollValue = target.position.y;
                 speed = new Vector3(0f, Random.Range(minSpeed, maxSpeed), 0f);
                 break;
         }
@@ -85,20 +87,20 @@ public class ParallaxMovement : MonoBehaviour {
         switch (direction)
         {
             case ScrollDirection.LeftToRight:
-                scrollValue = cameraTransform.position.x - lastScrollValue;
-                lastScrollValue = cameraTransform.position.x;
+                scrollValue = target.position.x - lastScrollValue;
+                lastScrollValue = target.position.x;
                 break;
             case ScrollDirection.RightToLeft:
-                scrollValue = -cameraTransform.position.x + lastScrollValue;
-                lastScrollValue = cameraTransform.position.x;
+                scrollValue = -target.position.x + lastScrollValue;
+                lastScrollValue = target.position.x;
                 break;
             case ScrollDirection.DownToUp:
-                scrollValue = -cameraTransform.position.y + lastScrollValue;
-                lastScrollValue = cameraTransform.position.y;
+                scrollValue = -target.position.y + lastScrollValue;
+                lastScrollValue = target.position.y;
                 break;
             case ScrollDirection.UpToDown:
-                scrollValue = cameraTransform.position.y - lastScrollValue;
-                lastScrollValue = cameraTransform.position.y;
+                scrollValue = target.position.y - lastScrollValue;
+                lastScrollValue = target.position.y;
                 break;
         }
 

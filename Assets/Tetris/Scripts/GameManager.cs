@@ -41,11 +41,6 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
-    private void Start()
-    {
-        StartGame();
-    }
-
     private void Update()
     {
         if (isPlay == true)
@@ -57,13 +52,22 @@ public class GameManager : MonoBehaviour
             spaceMovementTarget.position += Vector3.down * Time.deltaTime * totalScore;
         }
 
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if(Input.GetKeyDown(KeyCode.Escape) && mainTetrisBlock != null)
         {
             menuUI.gameObject.SetActive(!menuUI.gameObject.activeSelf);
+
+            if (menuUI.gameObject.activeSelf == true)
+            {
+                PauseGame();
+            }
+            else
+            {
+                PlayGame();
+            }
         }
     }
 
-    private void StartGame()
+    public void StartGame()
     {
         initDropInterval = dropInterval;
 
@@ -214,8 +218,8 @@ public class GameManager : MonoBehaviour
         
         ChangeGameDifficulty();
 
-        Action changeMainTetrisBlockAction = () => mainTetrisBlock = generator.GetMainTetrisBlock();
-        tetrisPlate.ChangeBackGroundHeight(y_Axis_MaxValue , changeMainTetrisBlockAction);
+        Action changeMainTetrisBlockHandler = () => mainTetrisBlock = generator.GetMainTetrisBlock();
+        tetrisPlate.ChangeBackGroundHeight(y_Axis_MaxValue , changeMainTetrisBlockHandler);
     }
 
     private void CheckGameOver()

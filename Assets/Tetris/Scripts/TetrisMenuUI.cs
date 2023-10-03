@@ -3,33 +3,41 @@ using UnityEngine.UI;
 
 public class TetrisMenuUI : MonoBehaviour
 {
-    [Header("Play & Pause")]
-    public Text playAndPauseText;
-    public Button playAndPauseButton;
+    [Header("Start")]
+    public Button startButton;
 
-    [Header("Help")]
-    public Button helpButton;
+    [Header("Play")]
+    public Button playButton;
+
+    [Header("Exit")]
+    public Button exitButton;
 
     private void Start()
     {
-        playAndPauseButton.onClick.AddListener(OnClickPlayAndPauseButton);
+        startButton.onClick.AddListener(StartGame);
+        playButton.onClick.AddListener(PlayGame);
+        exitButton.onClick.AddListener(QuitApplication);
     }
 
-    private void OnClickPlayAndPauseButton()
+    private void StartGame()
     {
-        if(playAndPauseText.text.Equals("Play"))
-        {
-            GameManager.instance.PlayGame();
+        GameManager.instance.StartGame();
 
-            playAndPauseText.text = "Pause";
+        startButton.gameObject.SetActive(false);
+        playButton.gameObject.SetActive(true);
 
-            gameObject.SetActive(false);
-        }
-        else
-        {
-            GameManager.instance.PauseGame();
+        PlayGame();
+    }
 
-            playAndPauseText.text = "Play";
-        }
+    private void PlayGame()
+    {
+        GameManager.instance.PlayGame();
+
+        gameObject.SetActive(false);
+    }
+
+    private void QuitApplication()
+    {
+        Application.Quit();
     }
 }

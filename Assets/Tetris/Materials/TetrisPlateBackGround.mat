@@ -77,14 +77,14 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TopLine: 11.5
+    - _TopLine: 9.5
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
     - _BelowBottomColor: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _GradientBottomColor: {r: 0.5331921, g: 0.9999545, b: 0, a: 1}
+    - _GradientBottomColor: {r: 0.65726733, g: 0.9504139, b: 0, a: 1}
     - _GradientTopColor: {r: 0, g: 0, b: 0, a: 1}
     - _OverTopColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

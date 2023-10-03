@@ -72,7 +72,7 @@ public class TetrisPlate : MonoBehaviour
         }
     }
 
-    public void ChangeBackGroundHeight(float targetHeight , Action changeMainTetrisBlockAction)
+    public void ChangeBackGroundHeight(float targetHeight , Action changeMainTetrisBlockHandler)
     {
         if(changeGradientHeightCoroutine != null)
         {
@@ -80,7 +80,7 @@ public class TetrisPlate : MonoBehaviour
         }
 
         colorChangeSpeed = 1 + targetHeight;
-        changeGradientHeightCoroutine = StartCoroutine(ChangeBackGroundHeightCoroutine(targetHeight, changeMainTetrisBlockAction));
+        changeGradientHeightCoroutine = StartCoroutine(ChangeBackGroundHeightCoroutine(targetHeight, changeMainTetrisBlockHandler));
     }
 
     private IEnumerator ChangeBackGroundHeightCoroutine(float targetHeight, Action changeMainTetrisBlockAction)
